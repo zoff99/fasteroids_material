@@ -530,6 +530,8 @@ jobs:
            sleep 20
            sleep 10
            sleep 40
+           cliclick -m verbose c:430,350
+           sleep 1
            cliclick kp:space
            sleep 10
            pwd
@@ -661,13 +663,11 @@ jobs:
                printf 'sleep 40\n' >> /tmp/a.sh
                printf 'fvwm2 &' >> /tmp/a.sh
                printf 'sleep 20\n' >> /tmp/a.sh
-               printf 'xdotool mousemove --sync 1000 400 click 1\n' >> /tmp/a.sh
+               printf 'xdotool mousemove --sync 480 460 click 1\n' >> /tmp/a.sh
                printf 'sleep 90\n' >> /tmp/a.sh
                printf 'import -window root /tmp/screenshot-linux.png\n' >> /tmp/a.sh
                printf 'sleep 2\n' >> /tmp/a.sh
-               printf 'xdotool mousemove --sync 200 90 click 1\n' >> /tmp/a.sh
-               printf 'sleep 1\n' >> /tmp/a.sh
-               printf 'xdotool mousemove --sync 1000 400 click 1\n' >> /tmp/a.sh
+               printf 'xdotool mousemove --sync 480 460 click 1\n' >> /tmp/a.sh
                printf 'sleep 1\n' >> /tmp/a.sh
                printf 'xdotool key space\n' >> /tmp/a.sh
                printf 'sleep 10\n' >> /tmp/a.sh
