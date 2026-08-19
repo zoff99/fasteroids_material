@@ -145,16 +145,14 @@ compose.desktop {
             if (os!!.isLinux)
             {
                 // on Linux set this for a possible skiko bug fix
-                //**// println("Linux -> skiko bug fix")
-                //**// jvmArgs += listOf("-Dskiko.vsync.enabled=false")
+                println("Linux -> skiko bug fix")
+                jvmArgs += listOf("-Dskiko.vsync.enabled=false")
             }
         }
         catch(_: Exception)
         {
             println("error detecting OS -> for skiko bug fix")
         }
-        println("for all now -> skiko bug fix")
-        jvmArgs += listOf("-Dskiko.vsync.enabled=false")
 
         buildTypes.release.proguard {
             optimize.set(false)
