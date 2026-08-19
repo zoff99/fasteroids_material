@@ -108,7 +108,7 @@ const val DEMO_SHOWCASE_DEBUG_ONLY = false // set "false" for release builds
 
 
 // initial scaling factor
-val INIT_SCALE = if (DEMO_SHOWCASE_DEBUG_ONLY) 2.5f else 3.5f
+val INIT_SCALE = if (DEMO_SHOWCASE_DEBUG_ONLY) 2.0f else 3.5f
 
 //
 // HINT: the original game was exactly 425 x 360 pixels in size
