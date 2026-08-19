@@ -517,7 +517,7 @@ jobs:
            screencapture -T 25 -x -t png /Users/runner/screen05.png &
            screencapture -T 50 -x -t png /Users/runner/screen06.png &
            screencapture -T 60 -x -t png /Users/runner/screen07.png &
-           screencapture -T 80 -x -t png /Users/runner/screenshot-macos-15arm.png &
+           screencapture -T 130 -x -t png /Users/runner/screenshot-macos-15arm.png &
            pwd
            ls -al
            ./gradlew run > fasteroids.log 2>&1 &
@@ -527,18 +527,10 @@ jobs:
            sendkeys apps
            cd /Users/runner/work/fasteroids_material/fasteroids_material/jshowarch-master
            rm *.class
-           javac jshowarch.java
-           java jshowarch 885 76 165 110 15 1 &
            sleep 2
            # audio video popup
            cliclick -m verbose c:507,368
-           sleep 20
-           sleep 10
-           sleep 40
-           cliclick -m verbose c:430,350
-           sleep 1
-           cliclick kp:space
-           sleep 10
+           sleep 50
            pwd
            ls -al /Users/runner/
            cp -v /Users/runner/screenshot-macos-15arm.png /Users/runner/work/fasteroids_material/fasteroids_material/screenshot-macos-15arm.png
