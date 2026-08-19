@@ -100,7 +100,11 @@ import kotlin.time.Duration.Companion.milliseconds
 // ============================================================================
 
 // Debug mode flag - when true, enables cheat features (infinite ammo, no damage)
-const val DEBUG_IT = false // keep "false" for Release
+const val DEBUG_IT = false // set "false" for release builds
+
+// Showcase mode for CI runs to make nice screenshots without the need to press keys
+const val DEMO_SHOWCASE_DEBUG_ONLY = false // set "false" for release builds
+
 
 // initial scaling factor
 const val INIT_SCALE = 3.5f
@@ -924,7 +928,11 @@ class FasteroidsGameState {
         if (isPaused) {
             // NEW: Check if any key is pressed while waiting
             if (waitingForKey) {
-                val anyKeyPressed = keyDown.any { it }
+                var anyKeyPressed = keyDown.any { it }
+                if (DEMO_SHOWCASE_DEBUG_ONLY)
+                {
+                    anyKeyPressed = true
+                }
                 if (anyKeyPressed) {
                     // Resume the game
                     isPaused = false
