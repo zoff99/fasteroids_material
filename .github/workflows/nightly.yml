@@ -497,6 +497,11 @@ jobs:
            cd jshowarch-master/
            javac jshowarch.java
 
+    - name: activate showcase mode
+      shell: bash
+      run: |
+           sed -i -e 's#DEMO_SHOWCASE_DEBUG_ONLY = false#DEMO_SHOWCASE_DEBUG_ONLY = true#' ./src/main/kotlin/FasteroidsMain.kt
+
     - name: startup-app
       run: |
            pwd
@@ -642,6 +647,10 @@ jobs:
                 fonts-tlwg-umpush \
                 fonts-tlwg-waree \
                 fonts-unfonts-core
+
+        - name: activate showcase mode
+          run: |
+               sed -i -e 's#DEMO_SHOWCASE_DEBUG_ONLY = false#DEMO_SHOWCASE_DEBUG_ONLY = true#' ./src/main/kotlin/FasteroidsMain.kt
 
         - name: create runscript
           run: |
