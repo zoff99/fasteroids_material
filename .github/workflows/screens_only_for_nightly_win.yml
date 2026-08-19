@@ -50,20 +50,15 @@ jobs:
         run: |
           ./gradlew.bat assemble
 
-      - name: startup-app
-        shell: pwsh
+      - name: app_startup
+        shell: bash
         run: |
-          [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-          [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-          Start-Sleep -Seconds 30
-          Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -WorkingDirectory "D:\a\fasteroids_material\fasteroids_material" -ArgumentList '/c', 'D:\a\fasteroids_material\fasteroids_material\gradlew.bat', "run" -windowstyle Maximized
-          Start-Sleep -Seconds 20
-          $signature=@'
-          [DllImport("user32.dll",CharSet=CharSet.Auto,CallingConvention=CallingConvention.StdCall)]
-          public static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
-          '@
-          $SendMouseClick = Add-Type -memberDefinition $signature -name "Win32MouseEventNew" -namespace Win32Functions -passThru
-          Start-Sleep -Seconds 10
+          ./gradlew.bat run > runlog.txt 2>&1 &
+
+      - name: sleep
+        shell: bash
+        run: |
+            sleep 30
 
       - name: capture-screen
         shell: pwsh
