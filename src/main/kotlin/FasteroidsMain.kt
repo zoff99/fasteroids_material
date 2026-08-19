@@ -90,6 +90,7 @@ import javax.sound.sampled.Clip
 // Java MIDI API for background music
 import javax.sound.midi.MidiSystem
 import javax.sound.midi.Sequencer
+import javax.sound.sampled.DataLine
 
 // Math utilities
 import kotlin.math.sin
@@ -354,12 +355,22 @@ class SoundManager {
                 if (resourceStream != null) AudioSystem.getAudioInputStream(resourceStream) else null
             }
             stream?.let {
-                val clip = AudioSystem.getClip()
+                println("🔍 [DEBUG] Loading sound: $filename")
+                println("🔍 [DEBUG] Detected AudioFormat: ${it.format}")
+
+                // FIX: Request a Clip line that explicitly supports the stream's actual format.
+                // AudioSystem.getClip() without arguments uses a dummy fallback format
+                // (stereo, big-endian, unknown sample rate) which Windows' DirectSound mixer rejects,
+                // while Linux's ALSA/PulseAudio providers permissively accept it.
+                val info = DataLine.Info(Clip::class.java, it.format)
+                val clip = AudioSystem.getLine(info) as Clip
+
                 clip.open(it)
+                println("✅ [DEBUG] Successfully loaded and opened clip for: $filename")
                 clip
             }
         } catch (e: Exception) {
-            println("⚠️ Failed to load sound $filename: ${e.message}")
+            println("⚠️ [DEBUG] Failed to load sound $filename: ${e.javaClass.simpleName} - ${e.message}")
             null
         }
     }
@@ -371,6 +382,7 @@ class SoundManager {
      */
     private fun loadMidi() {
         try {
+            println("🔍 [DEBUG] Attempting to load MIDI...")
             val file = File(resourcesDir, "assets/sound/fasteroids.mid")
             val sequence = if (file.exists()) {
                 MidiSystem.getSequence(file)
@@ -385,12 +397,14 @@ class SoundManager {
                 midiSequencer?.sequence = sequence
                 // Loop continuously while playing
                 midiSequencer?.loopCount = Sequencer.LOOP_CONTINUOUSLY
-                println("✅ MIDI file loaded successfully!")
+                println("✅ [DEBUG] MIDI file loaded successfully!")
             } else {
-                println("⚠️ MIDI file not found")
+                println("⚠️ [DEBUG] MIDI file not found")
             }
         } catch (e: Exception) {
-            println("⚠️ Failed to load MIDI: ${e.message}")
+            // Note: "Undefined external error" on Windows usually means the native MIDI synth is disabled/unavailable.
+            // This is normal on modern Windows; the game will just run without background music.
+            println("⚠️ [DEBUG] Failed to load MIDI: ${e.javaClass.simpleName} - ${e.message}")
         }
     }
 
