@@ -338,7 +338,14 @@ class SoundManager {
             loadMidi()
 
             isReady = true
-            println("✅ All game sounds loaded successfully!")
+            // DEBUG: if every clip failed, the machine has no usable audio device (CI server) -
+            // disable sound so the game simply runs silent instead of retrying later.
+            if (boomClip == null && shotSingleClip == null && chgLaserClips.all { it == null }) {
+                soundEnabled = false
+                println("⚠️ [DEBUG] No usable audio device found - sound disabled, game will run silent.")
+            } else {
+                println("✅ All game sounds loaded successfully!")
+            }
         } catch (e: Exception) {
             println("⚠️ Sound loading error: ${e.message}")
             isReady = true // Prevent infinite retry; missing sounds will gracefully fail
