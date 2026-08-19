@@ -1245,7 +1245,7 @@ class FasteroidsGameState {
 
                     if (hit) {
                         @Suppress("SimplifyBooleanWithConstants")
-                        if (!shuttle.shield && !DEBUG_IT) {
+                        if (!shuttle.shield && !DEBUG_IT && !DEMO_SHOWCASE_DEBUG_ONLY) {
                             // Player hit without shield - start death sequence
                             shuttle.hit = true
                             shuttle.hit_counter = shuttle.max_hit_counter
