@@ -121,8 +121,9 @@ const val fasteroids_main_width = original_pixel_width // 850/2
 const val fasteroids_main_height = original_pixel_height // 720/2
 
 // Outer window dimensions (includes UI elements)
-const val fasteroids_window_width = (fasteroids_main_width*2) - 80
-const val fasteroids_window_height = (fasteroids_main_height*2)
+val main_window_init_scale = (INIT_SCALE / 3.5f) * 2.0f
+val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + 80
+val fasteroids_window_height = (fasteroids_main_height * main_window_init_scale).toInt()
 const val ui = 50
 
 // Intro window width
