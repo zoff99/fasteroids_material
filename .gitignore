@@ -1,0 +1,15 @@
+.idea/*
+!.idea/codeStyles
+build/
+.gradle/
+bin/
+deps/
+main.db
+_BACKUP/
+datadir/
+tempdir/
+main.db-journal
+fasteroids_material-*.AppImage
+.kotlin/
+normal_run.sh
+final_pkg.deb

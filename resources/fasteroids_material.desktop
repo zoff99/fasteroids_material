@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Fasteroids Material
+GenericName=Fasteroids
+StartupWMClass=UndereatMainKt
+Comment=Fasteroids
+Exec=fasteroids_material/bin/fasteroids_material %U
+Icon=fasteroids_material
+Terminal=false
+Type=Application
+Categories=Game;
