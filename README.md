@@ -8,6 +8,7 @@
 Automated screenshots:<br>
 <img src="https://github.com/zoff99/fasteroids_material/releases/download/nightly/screenshot-macos-15arm.png" height="290"></a>
 <img src="https://github.com/zoff99/fasteroids_material/releases/download/nightly/screenshot-linux_02.png" height="290"></a>
+<img src="https://github.com/zoff99/fasteroids_material/releases/download/nightly/screenshot-windows.png" height="290"></a> 
 
 <br>
 Any use of this project's code by GitHub Copilot, past or present, is done
