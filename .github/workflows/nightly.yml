@@ -517,7 +517,7 @@ jobs:
            screencapture -T 25 -x -t png /Users/runner/screen05.png &
            screencapture -T 50 -x -t png /Users/runner/screen06.png &
            screencapture -T 60 -x -t png /Users/runner/screen07.png &
-           screencapture -T 130 -x -t png /Users/runner/screenshot-macos-15arm.png &
+           screencapture -T 140 -x -t png /Users/runner/screenshot-macos-15arm.png &
            pwd
            ls -al
            ./gradlew run > fasteroids.log 2>&1 &
@@ -530,7 +530,7 @@ jobs:
            sleep 2
            # audio video popup
            cliclick -m verbose c:507,368
-           sleep 50
+           sleep 30
            pwd
            ls -al /Users/runner/
            cp -v /Users/runner/screenshot-macos-15arm.png /Users/runner/work/fasteroids_material/fasteroids_material/screenshot-macos-15arm.png
