@@ -530,6 +530,8 @@ jobs:
            sleep 20
            sleep 10
            sleep 40
+           cliclick kp:space
+           sleep 10
            pwd
            ls -al /Users/runner/
            cp -v /Users/runner/screenshot-macos-15arm.png /Users/runner/work/fasteroids_material/fasteroids_material/screenshot-macos-15arm.png
@@ -667,6 +669,8 @@ jobs:
                printf 'sleep 1\n' >> /tmp/a.sh
                printf 'xdotool mousemove --sync 1000 400 click 1\n' >> /tmp/a.sh
                printf 'sleep 1\n' >> /tmp/a.sh
+               printf 'xdotool key space\n' >> /tmp/a.sh
+               printf 'sleep 10\n' >> /tmp/a.sh
                printf 'import -window root /tmp/screenshot-linux_02.png\n' >> /tmp/a.sh
                cat /tmp/a.sh
                chmod a+rx /tmp/a.sh
