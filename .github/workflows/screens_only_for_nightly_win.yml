@@ -1,6 +1,14 @@
 name: Screens Only Windows
 
 on:
+  push:
+    paths-ignore:
+     - 'README.md'
+     - 'CHANGELOG.md'
+  pull_request:
+    paths-ignore:
+     - 'README.md'
+     - 'CHANGELOG.md'
   workflow_dispatch:
     inputs:
       version:
