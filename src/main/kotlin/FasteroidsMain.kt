@@ -120,10 +120,17 @@ const val original_pixel_height = 360
 const val fasteroids_main_width = original_pixel_width // 850/2
 const val fasteroids_main_height = original_pixel_height // 720/2
 
+// aspect ratio of "resources/common/assets/pix/bg_m4.jpg"
+const val bg_m4_scale = (290.0f / 100.0f)
+
+// found by out by trying what the best values are
+const val unknown_01 = 2.0f
+const val unknown_02 = 48
+
 // Outer window dimensions (includes UI elements)
 val main_window_init_scale = (INIT_SCALE / 3.5f) * 2.0f
-val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + 80
 val fasteroids_window_height = (fasteroids_main_height * main_window_init_scale).toInt()
+val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + (((fasteroids_window_height.toFloat() / bg_m4_scale) + unknown_02) / unknown_01)
 const val ui = 50
 
 // Intro window width
@@ -1364,6 +1371,24 @@ fun FasteroidsGame(state: FasteroidsGameState) {
     var scale by remember { mutableStateOf(INIT_SCALE) }
     val focusRequester = remember { FocusRequester() }
 
+    var statusImage by remember { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(Unit) {
+        // Lazy load the side background image
+        statusImage = try {
+            val file = File(resourcesDir, "assets/pix/bg_m4.jpg")
+            if (file.exists()) {
+                val bytes = file.readBytes()
+                Image.makeFromEncoded(bytes).toComposeImageBitmap()
+            } else {
+                val stream = this::class.java.classLoader?.getResourceAsStream("pix/bg_m4.jpg")
+                stream?.readAllBytes()?.decodeToImageBitmap()
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     // Request focus on startup to ensure keyboard input works
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -1372,198 +1397,213 @@ fun FasteroidsGame(state: FasteroidsGameState) {
     Column(
         modifier = Modifier
             .background(Color(BG_BORDER_COLOR))
-            .padding(16.dp)
+            .padding(top = 16.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
             .fillMaxSize()
     ) {
-        Box(
-            modifier = Modifier
-                .size(((fasteroids_main_width/2)*scale).dp,
-                    ((fasteroids_main_height/2)*scale).dp)
-                .background(Color.Black)
-                .clipToBounds()
-                .focusable()
-                .focusRequester(focusRequester)
-                .clickable { focusRequester.requestFocus() }
-                .onPreviewKeyEvent { event ->
-                    // Intercept key events before they propagate further.
-                    // Maps physical keyboard keys to the game's internal boolean input array (state.keyDown).
-                    // This decouples the UI event system from the game logic update loop.
-                    val key = event.key
-                    val isDown = event.type == KeyEventType.KeyDown
-
-                    // Map keyboard keys to game input array
-                    when (key) {
-                        Key.Spacebar -> state.keyDown[0] = isDown
-                        Key.S -> state.keyDown[1] = isDown
-                        Key.DirectionUp -> state.keyDown[2] = isDown
-                        Key.DirectionDown -> state.keyDown[3] = isDown
-                        Key.DirectionLeft -> state.keyDown[4] = isDown
-                        Key.DirectionRight -> state.keyDown[5] = isDown
-                        Key.One, Key.NumPad1 -> state.keyDown[6] = isDown
-                        Key.Two, Key.NumPad2 -> state.keyDown[7] = isDown
-                        Key.Three, Key.NumPad3 -> state.keyDown[8] = isDown
-                        Key.Four, Key.NumPad4 -> state.keyDown[9] = isDown
-                        Key.Five, Key.NumPad5 -> state.keyDown[10] = isDown
-                        Key.Six, Key.NumPad6 -> state.keyDown[11] = isDown
-                        else -> return@onPreviewKeyEvent false
-                    }
-                    true
-                }
+        Row(horizontalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            // ====================================================================
-            // HUD (Heads-Up Display)
-            // ====================================================================
-            Row(
-                modifier = Modifier.fillMaxSize().padding(start = (2 * scale).dp, top = (2 * scale).dp, end = (2 * scale).dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Box(
+                modifier = Modifier
+                    .size(((fasteroids_main_width/2)*scale).dp,
+                        ((fasteroids_main_height/2)*scale).dp)
+                    .background(Color.Black)
+                    .clipToBounds()
+                    .focusable()
+                    .focusRequester(focusRequester)
+                    .clickable { focusRequester.requestFocus() }
+                    .onPreviewKeyEvent { event ->
+                        // Intercept key events before they propagate further.
+                        // Maps physical keyboard keys to the game's internal boolean input array (state.keyDown).
+                        // This decouples the UI event system from the game logic update loop.
+                        val key = event.key
+                        val isDown = event.type == KeyEventType.KeyDown
+
+                        // Map keyboard keys to game input array
+                        when (key) {
+                            Key.Spacebar -> state.keyDown[0] = isDown
+                            Key.S -> state.keyDown[1] = isDown
+                            Key.DirectionUp -> state.keyDown[2] = isDown
+                            Key.DirectionDown -> state.keyDown[3] = isDown
+                            Key.DirectionLeft -> state.keyDown[4] = isDown
+                            Key.DirectionRight -> state.keyDown[5] = isDown
+                            Key.One, Key.NumPad1 -> state.keyDown[6] = isDown
+                            Key.Two, Key.NumPad2 -> state.keyDown[7] = isDown
+                            Key.Three, Key.NumPad3 -> state.keyDown[8] = isDown
+                            Key.Four, Key.NumPad4 -> state.keyDown[9] = isDown
+                            Key.Five, Key.NumPad5 -> state.keyDown[10] = isDown
+                            Key.Six, Key.NumPad6 -> state.keyDown[11] = isDown
+                            else -> return@onPreviewKeyEvent false
+                        }
+                        true
+                    }
             ) {
-                // Left side: Score and Level
-                Column(horizontalAlignment = Alignment.Start) {
-                    Text(text = "Score: ${state.shuttle_p?.score ?: 0}", color = score_color, fontSize = (OSD_FONT_SIZE * scale).sp)
-                    Text(text = "Level: ${state.level}", color = Color.White, fontSize = (OSD_FONT_SIZE * scale).sp)
+                // ====================================================================
+                // HUD (Heads-Up Display)
+                // ====================================================================
+                Row(
+                    modifier = Modifier.fillMaxSize().padding(start = (2 * scale).dp, top = (2 * scale).dp, end = (2 * scale).dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Left side: Score and Level
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(text = "Score: ${state.shuttle_p?.score ?: 0}", color = score_color, fontSize = (OSD_FONT_SIZE * scale).sp)
+                        Text(text = "Level: ${state.level}", color = Color.White, fontSize = (OSD_FONT_SIZE * scale).sp)
+                    }
+
+                    // Right side: Ammo, Shields, Weapons, Lives
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(text = "${state.shuttle_p?.ammo ?: 0} : Ammo", color = ammo_color, fontSize = (OSD_FONT_SIZE * scale).sp)
+                        Text(text = "${state.shuttle_p?.shield_num ?: 0} : Shields", color = Color(100, 150, 255), fontSize = (OSD_FONT_SIZE * scale).sp)
+                        Text(text = "${state.laser + 1} / ${state.have_laser + 1} : Weapons", color = Color(100, 150, 255), fontSize = (OSD_FONT_SIZE * scale).sp)
+                        Text(text = "${state.laser_counter} : Weapon Goodies", color = Color(100, 150, 255), fontSize = (OSD_FONT_SIZE * scale).sp)
+                        Text(text = "${state.shuttle_p?.lives ?: 0} : Lives", color = Color(255, 100, 100), fontSize = (OSD_FONT_SIZE * scale).sp)
+                    }
                 }
 
-                // Right side: Ammo, Shields, Weapons, Lives
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(text = "${state.shuttle_p?.ammo ?: 0} : Ammo", color = ammo_color, fontSize = (OSD_FONT_SIZE * scale).sp)
-                    Text(text = "${state.shuttle_p?.shield_num ?: 0} : Shields", color = Color(100, 150, 255), fontSize = (OSD_FONT_SIZE * scale).sp)
-                    Text(text = "${state.laser + 1} / ${state.have_laser + 1} : Weapons", color = Color(100, 150, 255), fontSize = (OSD_FONT_SIZE * scale).sp)
-                    Text(text = "${state.laser_counter} : Weapon Goodies", color = Color(100, 150, 255), fontSize = (OSD_FONT_SIZE * scale).sp)
-                    Text(text = "${state.shuttle_p?.lives ?: 0} : Lives", color = Color(255, 100, 100), fontSize = (OSD_FONT_SIZE * scale).sp)
+                // ====================================================================
+                // GAME CANVAS
+                // ====================================================================
+                Canvas(
+                    modifier = Modifier
+                        .size(fasteroids_main_width.dp, fasteroids_main_height.dp)
+                        .graphicsLayer {
+                            // Apply scaling transformation to the canvas.
+                            // TransformOrigin(0f, 0f) ensures scaling happens from the top-left corner.
+                            scaleX = scale
+                            scaleY = scale
+                            transformOrigin = TransformOrigin(0f, 0f)
+                            clip = true }
+                ) {
+                    // Clear background with transparent color (the black background is handled by the parent Box)
+                    drawRect(Color.Transparent)
+
+                    // Draw animated star field
+                    state.stars.forEach { offset ->
+                        val c = (200 + (tick % 55))
+                        drawCircle(Color(c, c, c), radius = 1.5f, center = offset)
+                    }
+
+                    // --- ASTEROIDS ---
+                    state.asteroid_p.forEach { ast ->
+                        if (ast != null) {
+                            val img = state.images.asteroids.getOrNull(ast.kind)?.getOrNull(ast.frame)
+                            if (state.images.isReady && img != null) {
+                                drawImage(img, topLeft = Offset(ast.x.toFloat(), ast.y.toFloat()))
+                            } else {
+                                // FALLBACK GRAPHICS: Used when assets are not yet loaded or missing
+                                if (ast.expl) drawCircle(Color.Yellow, ast.r.toFloat(), Offset(ast.x + ast.r.toFloat(), ast.y + ast.r.toFloat()))
+                                else drawCircle(Color(170, 64 + (Math.random() * 50).toInt(), 20 + (Math.random() * 30).toInt()), ast.r.toFloat(), Offset(ast.x + ast.r.toFloat(), ast.y + ast.r.toFloat()))
+                            }
+                        }
+                    }
+
+                    // --- SHUTTLE ---
+                    val shuttle = state.shuttle_p
+                    if (shuttle != null) {
+                        // Draw shield if active
+                        if (shuttle.shield) {
+                            // FIXED: Actually draw the shield image if ready, matching Java's rec.x/rec.y offset
+                            val shieldImg = state.images.shields.getOrNull(shuttle.shield_frame)
+                            if (state.images.isReady && shieldImg != null) {
+                                drawImage(shieldImg, topLeft = Offset(shuttle.x - 4f, shuttle.y - 4f))
+                            } else {
+                                // FALLBACK GRAPHICS: Procedural circle for shield
+                                val centerX = shuttle.x + shuttle.width / 2f
+                                val centerY = shuttle.y + shuttle.height / 2f
+                                val radius = (maxOf(shuttle.width, shuttle.height) / 2f) + 6f
+                                drawCircle(
+                                    color = Color(0, 0, 200),
+                                    radius = radius,
+                                    center = Offset(centerX, centerY),
+                                    style = Stroke(width = 3f)
+                                )
+                            }
+                        }
+
+                        // Draw shuttle or explosion
+                        val isExploding = shuttle.hit_counter > 0 || shuttle.frame_ex > 0
+                        val shuttleImg = if (isExploding) {
+                            state.images.shuttleEx.getOrNull(shuttle.frame_ex.coerceAtLeast(1))
+                        } else {
+                            state.images.shuttles.getOrNull(shuttle.frame)
+                        }
+
+                        if (state.images.isReady && shuttleImg != null) {
+                            // FIXED: Apply offset for explosion animation to match original Java position
+                            val drawX = if (isExploding) shuttle.x - 22f else shuttle.x.toFloat()
+                            val drawY = if (isExploding) shuttle.y - 26f else shuttle.y.toFloat()
+                            drawImage(shuttleImg, topLeft = Offset(drawX, drawY))
+                        } else {
+                            // FALLBACK GRAPHICS: Procedural triangle for shuttle, red box for explosion
+                            if (!isExploding) {
+                                val points = listOf(
+                                    Offset(shuttle.x + shuttle.width / 2f, shuttle.y.toFloat()),
+                                    Offset((shuttle.x + shuttle.width - 3).toFloat(), (shuttle.y + shuttle.height).toFloat()),
+                                    Offset((shuttle.x + 3).toFloat(), (shuttle.y + shuttle.height).toFloat())
+                                )
+                                drawLine(Color.White, points[0], points[1], strokeWidth = 2f)
+                                drawLine(Color.White, points[1], points[2], strokeWidth = 2f)
+                                drawLine(Color.White, points[2], points[0], strokeWidth = 2f)
+                                drawRect(Color(170, 40, 105), topLeft = Offset(shuttle.x + shuttle.width / 2f - 2f, shuttle.y + 1f), size = Size(5f, (shuttle.height - 1).toFloat()))
+                            } else {
+                                drawRect(Color.Red, topLeft = Offset(shuttle.x.toFloat(), shuttle.y.toFloat()), size = Size(shuttle.width.toFloat(), shuttle.height.toFloat()))
+                            }
+                        }
+                    }
+
+                    // --- SHOTS ---
+                    state.shots.forEach { shot ->
+                        val shotImg = when (shot.kind) {
+                            0 -> state.images.lasers0.getOrNull(shot.frame)
+                            1 -> state.images.lasers1.getOrNull(shot.frame)
+                            2 -> state.images.lasers2.getOrNull(shot.frame)
+                            else -> null
+                        }
+
+                        if (state.images.isReady && shotImg != null) {
+                            drawImage(shotImg, topLeft = Offset(shot.x.toFloat(), shot.y.toFloat()))
+                        } else {
+                            // FALLBACK GRAPHICS: Colored rectangles for projectiles
+                            val color = when (shot.kind) {
+                                1 -> Color(255, 100, 50)
+                                2 -> Color(255, 255, 100)
+                                else -> Color.Red
+                            }
+                            drawRect(
+                                color = color,
+                                topLeft = Offset(shot.x.toFloat(), shot.y.toFloat()),
+                                size = Size(shot.width.toFloat(), shot.height.toFloat())
+                            )
+                        }
+                    }
+
+                    // --- GOODIES ---
+                    state.goodies.forEach { goodie ->
+                        val goodieImg = state.images.goodies.getOrNull(goodie.kind)?.getOrNull(goodie.frame)
+                        if (state.images.isReady && goodieImg != null) {
+                            drawImage(goodieImg, topLeft = Offset(goodie.x.toFloat(), goodie.y.toFloat()))
+                        } else {
+                            // FALLBACK GRAPHICS: Colored ovals for power-ups
+                            drawOval(goodie.color, topLeft = Offset(goodie.x.toFloat(), goodie.y.toFloat()), size = Size(goodie.width.toFloat(), goodie.height.toFloat()))
+                        }
+                    }
                 }
             }
 
-            // ====================================================================
-            // GAME CANVAS
-            // ====================================================================
-            Canvas(
-                modifier = Modifier
-                    .size(fasteroids_main_width.dp, fasteroids_main_height.dp)
-                    .graphicsLayer {
-                        // Apply scaling transformation to the canvas.
-                        // TransformOrigin(0f, 0f) ensures scaling happens from the top-left corner.
-                        scaleX = scale
-                        scaleY = scale
-                        transformOrigin = TransformOrigin(0f, 0f)
-                        clip = true }
-            ) {
-                // Clear background with transparent color (the black background is handled by the parent Box)
-                drawRect(Color.Transparent)
-
-                // Draw animated star field
-                state.stars.forEach { offset ->
-                    val c = (200 + (tick % 55))
-                    drawCircle(Color(c, c, c), radius = 1.5f, center = offset)
-                }
-
-                // --- ASTEROIDS ---
-                state.asteroid_p.forEach { ast ->
-                    if (ast != null) {
-                        val img = state.images.asteroids.getOrNull(ast.kind)?.getOrNull(ast.frame)
-                        if (state.images.isReady && img != null) {
-                            drawImage(img, topLeft = Offset(ast.x.toFloat(), ast.y.toFloat()))
-                        } else {
-                            // FALLBACK GRAPHICS: Used when assets are not yet loaded or missing
-                            if (ast.expl) drawCircle(Color.Yellow, ast.r.toFloat(), Offset(ast.x + ast.r.toFloat(), ast.y + ast.r.toFloat()))
-                            else drawCircle(Color(170, 64 + (Math.random() * 50).toInt(), 20 + (Math.random() * 30).toInt()), ast.r.toFloat(), Offset(ast.x + ast.r.toFloat(), ast.y + ast.r.toFloat()))
-                        }
-                    }
-                }
-
-                // --- SHUTTLE ---
-                val shuttle = state.shuttle_p
-                if (shuttle != null) {
-                    // Draw shield if active
-                    if (shuttle.shield) {
-                        // FIXED: Actually draw the shield image if ready, matching Java's rec.x/rec.y offset
-                        val shieldImg = state.images.shields.getOrNull(shuttle.shield_frame)
-                        if (state.images.isReady && shieldImg != null) {
-                            drawImage(shieldImg, topLeft = Offset(shuttle.x - 4f, shuttle.y - 4f))
-                        } else {
-                            // FALLBACK GRAPHICS: Procedural circle for shield
-                            val centerX = shuttle.x + shuttle.width / 2f
-                            val centerY = shuttle.y + shuttle.height / 2f
-                            val radius = (maxOf(shuttle.width, shuttle.height) / 2f) + 6f
-                            drawCircle(
-                                color = Color(0, 0, 200),
-                                radius = radius,
-                                center = Offset(centerX, centerY),
-                                style = Stroke(width = 3f)
-                            )
-                        }
-                    }
-
-                    // Draw shuttle or explosion
-                    val isExploding = shuttle.hit_counter > 0 || shuttle.frame_ex > 0
-                    val shuttleImg = if (isExploding) {
-                        state.images.shuttleEx.getOrNull(shuttle.frame_ex.coerceAtLeast(1))
-                    } else {
-                        state.images.shuttles.getOrNull(shuttle.frame)
-                    }
-
-                    if (state.images.isReady && shuttleImg != null) {
-                        // FIXED: Apply offset for explosion animation to match original Java position
-                        val drawX = if (isExploding) shuttle.x - 22f else shuttle.x.toFloat()
-                        val drawY = if (isExploding) shuttle.y - 26f else shuttle.y.toFloat()
-                        drawImage(shuttleImg, topLeft = Offset(drawX, drawY))
-                    } else {
-                        // FALLBACK GRAPHICS: Procedural triangle for shuttle, red box for explosion
-                        if (!isExploding) {
-                            val points = listOf(
-                                Offset(shuttle.x + shuttle.width / 2f, shuttle.y.toFloat()),
-                                Offset((shuttle.x + shuttle.width - 3).toFloat(), (shuttle.y + shuttle.height).toFloat()),
-                                Offset((shuttle.x + 3).toFloat(), (shuttle.y + shuttle.height).toFloat())
-                            )
-                            drawLine(Color.White, points[0], points[1], strokeWidth = 2f)
-                            drawLine(Color.White, points[1], points[2], strokeWidth = 2f)
-                            drawLine(Color.White, points[2], points[0], strokeWidth = 2f)
-                            drawRect(Color(170, 40, 105), topLeft = Offset(shuttle.x + shuttle.width / 2f - 2f, shuttle.y + 1f), size = Size(5f, (shuttle.height - 1).toFloat()))
-                        } else {
-                            drawRect(Color.Red, topLeft = Offset(shuttle.x.toFloat(), shuttle.y.toFloat()), size = Size(shuttle.width.toFloat(), shuttle.height.toFloat()))
-                        }
-                    }
-                }
-
-                // --- SHOTS ---
-                state.shots.forEach { shot ->
-                    val shotImg = when (shot.kind) {
-                        0 -> state.images.lasers0.getOrNull(shot.frame)
-                        1 -> state.images.lasers1.getOrNull(shot.frame)
-                        2 -> state.images.lasers2.getOrNull(shot.frame)
-                        else -> null
-                    }
-
-                    if (state.images.isReady && shotImg != null) {
-                        drawImage(shotImg, topLeft = Offset(shot.x.toFloat(), shot.y.toFloat()))
-                    } else {
-                        // FALLBACK GRAPHICS: Colored rectangles for projectiles
-                        val color = when (shot.kind) {
-                            1 -> Color(255, 100, 50)
-                            2 -> Color(255, 255, 100)
-                            else -> Color.Red
-                        }
-                        drawRect(
-                            color = color,
-                            topLeft = Offset(shot.x.toFloat(), shot.y.toFloat()),
-                            size = Size(shot.width.toFloat(), shot.height.toFloat())
-                        )
-                    }
-                }
-
-                // --- GOODIES ---
-                state.goodies.forEach { goodie ->
-                    val goodieImg = state.images.goodies.getOrNull(goodie.kind)?.getOrNull(goodie.frame)
-                    if (state.images.isReady && goodieImg != null) {
-                        drawImage(goodieImg, topLeft = Offset(goodie.x.toFloat(), goodie.y.toFloat()))
-                    } else {
-                        // FALLBACK GRAPHICS: Colored ovals for power-ups
-                        drawOval(goodie.color, topLeft = Offset(goodie.x.toFloat(), goodie.y.toFloat()), size = Size(goodie.width.toFloat(), goodie.height.toFloat()))
-                    }
-                }
+            // Status graphic right of the playing field
+            if (statusImage != null) {
+                Image(
+                    bitmap = statusImage!!,
+                    contentDescription = "Side Background",
+                    contentScale = ContentScale.FillHeight,
+                    modifier = Modifier
+                        .height(((fasteroids_main_height / 2) * scale).dp)
+                        .padding(all = 0.dp)
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height((4 * scale).dp))
+        Spacer(modifier = Modifier.height((6 * scale).dp))
 
         // Scale slider for window resizing
         Row(verticalAlignment = Alignment.CenterVertically,
