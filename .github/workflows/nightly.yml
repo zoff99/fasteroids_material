@@ -672,7 +672,7 @@ jobs:
                printf 'xdotool mousemove --sync 480 460 click 1\n' >> /tmp/a.sh
                printf 'sleep 1\n' >> /tmp/a.sh
                printf 'xdotool key space\n' >> /tmp/a.sh
-               printf 'sleep 10\n' >> /tmp/a.sh
+               printf 'sleep 60\n' >> /tmp/a.sh
                printf 'import -window root /tmp/screenshot-linux_02.png\n' >> /tmp/a.sh
                cat /tmp/a.sh
                chmod a+rx /tmp/a.sh
