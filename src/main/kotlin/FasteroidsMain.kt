@@ -1061,7 +1061,8 @@ class FasteroidsGameState {
         if (keyDown[4]) { shuttle.x = (shuttle.x - steer_x).coerceAtLeast(max_left); shuttle.frame = 1 }
 
         // Right movement
-        if (keyDown[5]) { shuttle.x = (shuttle.x + steer_x).coerceAtMost(max_right); shuttle.frame = 2 }
+        @Suppress("SimplifyBooleanWithConstants")
+        if ((keyDown[5]) || DEMO_SHOWCASE_DEBUG_ONLY) { shuttle.x = (shuttle.x + steer_x).coerceAtMost(max_right); shuttle.frame = 2 }
 
         // Up movement
         @Suppress("SimplifyBooleanWithConstants")
