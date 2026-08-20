@@ -1757,7 +1757,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
 
     val mainWindowState = rememberWindowState(
         width = fasteroids_window_width.dp,
-        height = fasteroids_window_height.dp + ui.dp + 80.dp,
+        height = fasteroids_window_height.dp + ui.dp,
         position = WindowPosition.Absolute(x = 50.dp, y = 50.dp)
     )
 
