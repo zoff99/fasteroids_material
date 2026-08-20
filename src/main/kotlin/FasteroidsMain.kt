@@ -662,6 +662,18 @@ class Goodie(var x: Int, var y: Int, val which: Int, val vx: Int, val vy: Int) {
 // ============================================================================
 
 /**
+ * Represents a single star in the background starfield.
+ * Matches the original Java game's logic where stars have varying
+ * positions, sizes (1-3 pixels), and brightness levels (5-255).
+ */
+data class Star(
+    val x: Float,
+    val y: Float,
+    val radius: Float,
+    val brightness: Int
+)
+
+/**
  * Main game state manager.
  * Contains all game variables, handles game logic, and manages state transitions.
  * Marked as @Stable for Compose optimization.
@@ -788,10 +800,29 @@ class FasteroidsGameState {
     // Sound Assets Manager
     val sounds = SoundManager()
 
-    // Background star field (200 stars with random positions)
-    val stars = List(200) {
-        Offset((Math.random() * size_x).toFloat(), (Math.random() * size_y).toFloat())
+    /**
+     * Background star field (600 stars with random positions, sizes, and brightness).
+     * Matches the original Java game's logic:
+     * - 600 stars total (matching Java's loop of 600)
+     * - Y position ranges from 0 to 1000 (the height of the scrolling background buffer)
+     * - Radius ranges from 1.0 to 3.0 pixels (matching Java's random * 3 + 1)
+     * - Brightness ranges from 5 to 255 (matching Java's 255 - random * 250)
+     */
+    val stars = List(600) {
+        Star(
+            x = (Math.random() * size_x).toFloat(),
+            y = (Math.random() * 1000).toFloat(),
+            radius = (Math.random() * 3 + 1).toFloat(),
+            brightness = 255 - (Math.random() * 250).toInt()
+        )
     }
+
+    /**
+     * Background scroll position for the starfield.
+     * Matches the original Java's bg_y variable.
+     * Starts at -1000 + size_y and increments by scroll_speed until it reaches 0, then resets.
+     */
+    var bg_y by mutableStateOf(-1000 + size_y)
 
     /**
      * Game constants and configuration
@@ -984,6 +1015,16 @@ class FasteroidsGameState {
      */
     fun update() {
         frameTick++
+
+        // ====================================================================
+        // BACKGROUND SCROLLING
+        // ====================================================================
+        // Continuously scroll the starfield background downwards to simulate forward movement.
+        // This matches the original Java scroll_bg() logic.
+        bg_y += scroll_speed
+        if (bg_y >= 0) {
+            bg_y = -1000 + size_y
+        }
 
         // ====================================================================
         // PAUSE SCREEN HANDLING
@@ -1511,10 +1552,21 @@ fun FasteroidsGame(state: FasteroidsGameState) {
                     // Clear background with transparent color (the black background is handled by the parent Box)
                     drawRect(Color.Transparent)
 
-                    // Draw animated star field
-                    state.stars.forEach { offset ->
-                        val c = (200 + (tick % 55))
-                        drawCircle(Color(c, c, c), radius = 1.5f, center = offset)
+                    // Draw continuously scrolling star field
+                    // Matches the original Java behavior of drawing a pre-rendered 1000px high buffer
+                    state.stars.forEach { star ->
+                        // Calculate the drawn Y position by adding the scroll offset (bg_y)
+                        val drawY = star.y + state.bg_y
+
+                        // Only draw stars that are currently within the visible canvas bounds.
+                        // This is a performance optimization and perfectly matches the Java clipping behavior.
+                        if (drawY >= -star.radius && drawY <= FasteroidsGameState.size_y + star.radius) {
+                            drawCircle(
+                                color = Color(star.brightness, star.brightness, star.brightness),
+                                radius = star.radius,
+                                center = Offset(star.x, drawY)
+                            )
+                        }
                     }
 
                     // --- ASTEROIDS ---
