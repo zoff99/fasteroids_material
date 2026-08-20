@@ -614,29 +614,46 @@ class Circle(
 /**
  * Represents the player's shuttle (spaceship).
  * Manages player state including position, shields, lives, ammo, and weapons.
+ * Properties are wrapped in mutableStateOf to ensure Compose UI recomposes when they change.
  */
-class Shuttle(var x: Int, var y: Int, val width: Int, val height: Int) {
+class Shuttle(x: Int, y: Int, val width: Int, val height: Int) {
+    var x by mutableStateOf(x)
+    var y by mutableStateOf(y)
+
     // Action flags
-    var shield = false; var shoot = false; var shoot_zero = false
+    var shield by mutableStateOf(false)
+    var shoot by mutableStateOf(false)
+    var shoot_zero by mutableStateOf(false)
 
     // Player stats
-    var lives = 5; val max_shield_num = 5; var shield_num = max_shield_num
-    var score = 0; val max_ammo = 299; var ammo = max_ammo
+    var lives by mutableStateOf(5)
+    val max_shield_num = 5
+    var shield_num by mutableStateOf(max_shield_num)
+    var score by mutableStateOf(0)
+    val max_ammo = 299
+    var ammo by mutableStateOf(max_ammo)
 
     // Animation state
     // frame: normal movement orientation (0-3)
     // frame_ex: explosion animation frame (0-5)
-    var frame = 0; var frame_ex = 0; val max_hit_counter = 10; var hit_counter = 0
-    var mover = 0 // Used for explosion animation timing
+    var frame by mutableStateOf(0)
+    var frame_ex by mutableStateOf(0)
+    val max_hit_counter = 10
+    var hit_counter by mutableStateOf(0)
+    var mover by mutableStateOf(0) // Used for explosion animation timing
 
     // Shooting mechanics
-    var max_shoot_delay = 10; var shoot_delay = 0
+    var max_shoot_delay = 10
+    var shoot_delay by mutableStateOf(0)
 
     // Shield mechanics - duration controlled by SHIELD_ANIM_TICKS
-    var shield_counter = 0; val max_shield = 90; var hit = false
+    var shield_counter by mutableStateOf(0)
+    val max_shield = 90
+    var hit by mutableStateOf(false)
 
     // Shield animation - speed controlled by SHIELD_ANIM_TICKS
-    var shield_frame = 0; var shield_mover = 0
+    var shield_frame by mutableStateOf(0)
+    var shield_mover by mutableStateOf(0)
 }
 
 /**
