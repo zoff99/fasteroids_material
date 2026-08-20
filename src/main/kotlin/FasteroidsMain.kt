@@ -107,7 +107,7 @@ const val DEBUG_IT = false // set "false" for release builds
 // Showcase mode for CI runs to make nice screenshots without the need to press keys
 const val DEMO_SHOWCASE_DEBUG_ONLY = false // set "false" for release builds
 
-const val dpi_factor = 1.0
+const val dpi_factor = 2.0
 
 // in Showcase mode free the game after this amount of seconds
 const val FREEZE_GAME_AFTER_SECONS = 5
