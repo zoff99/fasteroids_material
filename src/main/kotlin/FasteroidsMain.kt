@@ -664,7 +664,7 @@ class Goodie(var x: Int, var y: Int, val which: Int, val vx: Int, val vy: Int) {
 /**
  * Represents a single star in the background starfield.
  * Matches the original Java game's logic where stars have varying
- * positions, sizes (1-3 pixels), and brightness levels (5-255).
+ * positions, sizes (1-3 pixels diameter), and brightness levels (5-255).
  */
 data class Star(
     val x: Float,
@@ -801,20 +801,36 @@ class FasteroidsGameState {
     val sounds = SoundManager()
 
     /**
-     * Background star field (600 stars with random positions, sizes, and brightness).
+     * Background star field.
      * Matches the original Java game's logic:
-     * - 600 stars total (matching Java's loop of 600)
-     * - Y position ranges from 0 to 1000 (the height of the scrolling background buffer)
-     * - Radius ranges from 1.0 to 3.0 pixels (matching Java's random * 3 + 1)
-     * - Brightness ranges from 5 to 255 (matching Java's 255 - random * 250)
+     * - 600 stars total base count.
+     * - Y position ranges from 0 to (1000 - size_y) to allow seamless wrapping.
+     * - Radius is 0.5f, 1.0f, or 1.5f (matching Java's fillOval diameter of 1, 2, or 3).
+     * - Brightness ranges from 5 to 255.
+     * - Stars in the top 'size_y' portion are duplicated at the bottom to ensure
+     *   smooth, continuous endless scrolling without visible jumps, exactly
+     *   replicating Java's copyArea logic.
      */
-    val stars = List(600) {
-        Star(
-            x = (Math.random() * size_x).toFloat(),
-            y = (Math.random() * 1000).toFloat(),
-            radius = (Math.random() * 3 + 1).toFloat(),
-            brightness = 255 - (Math.random() * 250).toInt()
-        )
+    val stars = buildList {
+        repeat(600) {
+            val y = (Math.random() * (1000 - FasteroidsGameState.size_y)).toFloat()
+            val star = Star(
+                x = (Math.random() * FasteroidsGameState.size_x).toFloat(),
+                y = y,
+                // Java: int wh=(int)(Math.random()*3+1); -> diameter 1, 2, or 3. Radius is half of that.
+                radius = ((Math.random() * 3).toInt() + 1).toFloat() / 2f,
+                brightness = 255 - (Math.random() * 250).toInt()
+            )
+            add(star)
+
+            // If the star is in the top 'size_y' portion, add a duplicate at the bottom
+            // of the virtual 1000px buffer. This ensures seamless wrapping when the
+            // background scrolls past the 1000px boundary, exactly matching Java's
+            // gg.copyArea(0, 0, size_x, size_y, 0, 1000 - size_y) logic.
+            if (y < FasteroidsGameState.size_y) {
+                add(star.copy(y = y + (1000 - FasteroidsGameState.size_y)))
+            }
+        }
     }
 
     /**
