@@ -149,7 +149,7 @@ val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).t
 const val ui = 50
 
 // Intro window width
-val intro_window_width = 500 * dpi_factor
+val intro_window_width = 500 * dpi_factor * (INIT_SCALE / 3.5f)
 
 // We set this later to the "resources/common/" directory in the source tree
 var resourcesDir: File? = null
@@ -1770,9 +1770,11 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
 
     val main_window_pos_x = 50.dp
     val main_window_pos_y = 50.dp
+    val found_unknown03 = (-166.5f * INIT_SCALE + 582.75f).dp
+    val found_unknown04 = ((580 * 2) / dpi_factor).dp
 
     val mainWindowState = rememberWindowState(
-        width = fasteroids_window_width.dp + ((580 * 2) / dpi_factor).dp + (0 * (dpi_factor - 1)).dp,
+        width = fasteroids_window_width.dp - found_unknown03 + found_unknown04,
         height = fasteroids_window_height.dp + ui.dp,
         position = WindowPosition.Absolute(x = main_window_pos_x, y = main_window_pos_y)
     )
@@ -1783,7 +1785,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
             onClose = { showIntroWindow.value = false },
             mainWindowX = main_window_pos_x,
             mainWindowY = main_window_pos_y,
-            mainWindowWidth = fasteroids_window_width.dp + ((580 * 2) / dpi_factor).dp + (0 * (dpi_factor - 1)).dp
+            mainWindowWidth = fasteroids_window_width.dp - found_unknown03 + found_unknown04
         )
     }
 
