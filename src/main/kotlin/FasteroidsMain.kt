@@ -107,6 +107,8 @@ const val DEBUG_IT = false // set "false" for release builds
 // Showcase mode for CI runs to make nice screenshots without the need to press keys
 const val DEMO_SHOWCASE_DEBUG_ONLY = false // set "false" for release builds
 
+const val dpi_factor = 1.0
+
 // in Showcase mode free the game after this amount of seconds
 const val FREEZE_GAME_AFTER_SECONS = 5
 
@@ -135,12 +137,12 @@ const val unknown_02 = 48
 
 // Outer window dimensions (includes UI elements)
 val main_window_init_scale = (INIT_SCALE / 3.5f) * 2.0f
-val fasteroids_window_height = (fasteroids_main_height * main_window_init_scale).toInt()
-val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + (((fasteroids_window_height.toFloat() / bg_m4_scale) + unknown_02) / unknown_01)
+val fasteroids_window_height = (fasteroids_main_height * main_window_init_scale).toInt() * dpi_factor
+val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + (((fasteroids_window_height.toFloat() / bg_m4_scale) + unknown_02) / unknown_01) * dpi_factor
 const val ui = 50
 
 // Intro window width
-const val intro_window_width = 500
+const val intro_window_width = 500 * dpi_factor
 
 // We set this later to the "resources/common/" directory in the source tree
 var resourcesDir: File? = null
@@ -1410,8 +1412,8 @@ fun FasteroidsGame(state: FasteroidsGameState) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(((fasteroids_main_width/2)*scale).dp,
-                        ((fasteroids_main_height/2)*scale).dp)
+                    .size((((fasteroids_main_width/2)*scale) * dpi_factor).dp,
+                        (((fasteroids_main_height/2)*scale) * dpi_factor).dp)
                     .background(Color.Black)
                     .clipToBounds()
                     .focusable()
@@ -1603,7 +1605,7 @@ fun FasteroidsGame(state: FasteroidsGameState) {
                     contentDescription = "Side Background",
                     contentScale = ContentScale.FillHeight,
                     modifier = Modifier
-                        .height(((fasteroids_main_height / 2) * scale).dp)
+                        .height(((fasteroids_main_height / 2 * dpi_factor) * scale).dp)
                         .padding(all = 0.dp)
                 )
             }
@@ -1757,19 +1759,22 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
 
     val showIntroWindow = remember { mutableStateOf(true) }
 
+    val main_window_pos_x = 50.dp
+    val main_window_pos_y = 50.dp
+
     val mainWindowState = rememberWindowState(
-        width = fasteroids_window_width.dp,
+        width = fasteroids_window_width.dp + (580 * (dpi_factor - 1)).dp,
         height = fasteroids_window_height.dp + ui.dp,
-        position = WindowPosition.Absolute(x = 50.dp, y = 50.dp)
+        position = WindowPosition.Absolute(x = main_window_pos_x, y = main_window_pos_y)
     )
 
     if (showIntroWindow.value) {
         IntroWindow(
             resourcesDir = resourcesDir,
             onClose = { showIntroWindow.value = false },
-            mainWindowX = 100.dp,
-            mainWindowY = 100.dp,
-            mainWindowWidth = fasteroids_window_width.dp
+            mainWindowX = main_window_pos_x,
+            mainWindowY = main_window_pos_y,
+            mainWindowWidth = fasteroids_window_width.dp + (580 * (dpi_factor - 1)).dp
         )
     }
 
