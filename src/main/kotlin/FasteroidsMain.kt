@@ -109,12 +109,12 @@ const val DEMO_SHOWCASE_DEBUG_ONLY = false // set "false" for release builds
 
 // Automatically detect system display scale (e.g., 1.0 for 100%, 2.0 for 200%)
 val systemDisplayScale = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment()
-    .defaultScreenDevice.defaultConfiguration.defaultTransform.scaleX
+    .defaultScreenDevice.defaultConfiguration.defaultTransform.scaleX.toFloat()
 
 // The game is designed to run at 2x the original size.
 // If the system already scales by 2.0 (200%), we only need a factor of 1.0.
 // If the system is at 1.0 (100%), we need a factor of 2.0.
-val dpi_factor = 2.0 / systemDisplayScale
+val dpi_factor = 2.0f / systemDisplayScale
 
 // in Showcase mode free the game after this amount of seconds
 const val FREEZE_GAME_AFTER_SECONS = 5
@@ -123,7 +123,7 @@ const val FREEZE_GAME_AFTER_SECONS = 5
 const val LAZY_LOAD_AFTER_SECODNS = 2
 
 // initial scaling factor
-val INIT_SCALE = if (DEMO_SHOWCASE_DEBUG_ONLY) 1.0f else 3.5f
+val INIT_SCALE = if (DEMO_SHOWCASE_DEBUG_ONLY) 1.5f else 3.5f
 
 //
 // HINT: the original game was exactly 425 x 360 pixels in size
