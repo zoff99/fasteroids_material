@@ -162,7 +162,7 @@ const val empirically__SIDE_PANEL_WIDTH_PADDING = 48
 // Outer window dimensions (includes UI elements)
 val main_window_init_scale = (INIT_SCALE / 3.5f) * 2.0f
 val fasteroids_window_height = (fasteroids_main_height * main_window_init_scale).toInt() * dpi_factor
-val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + (((fasteroids_window_height.toFloat() / bg_m4_scale) + empirically__SIDE_PANEL_WIDTH_PADDING) / empirically__SIDE_PANEL_WIDTH_DIVISOR) * dpi_factor
+val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + (((fasteroids_window_height / bg_m4_scale) + empirically__SIDE_PANEL_WIDTH_PADDING) / empirically__SIDE_PANEL_WIDTH_DIVISOR) * dpi_factor
 const val ui = 50
 
 // Intro window width
@@ -248,6 +248,11 @@ class ImageAssets {
     val asteroids = Array(3) { arrayOfNulls<ImageBitmap>(8) } // 3 kinds × 8 frames each
     val goodies = Array(3) { arrayOfNulls<ImageBitmap>(4) }  // 3 types × 4 frames each
 
+    // Status images for the side panel
+    val levelStatus = arrayOfNulls<ImageBitmap>(6)           // Level status images (1-5)
+    val lifeStatus = arrayOfNulls<ImageBitmap>(6)            // Life status images (0-5)
+    val shieldStatus = arrayOfNulls<ImageBitmap>(6)          // Shield status images (0-5)
+
     /**
      * Loads all game images from assets.
      * Attempts to load from local filesystem first, then falls back to classpath resources.
@@ -283,6 +288,11 @@ class ImageAssets {
                     goodies[k][f] = loadAssetImage("goodies$k-$f.gif")
                 }
             }
+
+            // Load status images for the side panel
+            for (i in 1..5) levelStatus[i] = loadAssetImage("status/level$i.gif")
+            for (i in 0..5) lifeStatus[i] = loadAssetImage("status/life$i.jpg")
+            for (i in 0..5) shieldStatus[i] = loadAssetImage("status/shield$i.jpg")
 
             isReady = true
             println("✅ All game assets loaded successfully!")
@@ -813,9 +823,9 @@ class FasteroidsGameState {
      */
     val stars = buildList {
         repeat(600) {
-            val y = (Math.random() * (1000 - FasteroidsGameState.size_y)).toFloat()
+            val y = (Math.random() * (1000 - size_y)).toFloat()
             val star = Star(
-                x = (Math.random() * FasteroidsGameState.size_x).toFloat(),
+                x = (Math.random() * size_x).toFloat(),
                 y = y,
                 // Java: int wh=(int)(Math.random()*3+1); -> diameter 1, 2, or 3. Radius is half of that.
                 radius = ((Math.random() * 3).toInt() + 1).toFloat() / 2f,
@@ -827,8 +837,8 @@ class FasteroidsGameState {
             // of the virtual 1000px buffer. This ensures seamless wrapping when the
             // background scrolls past the 1000px boundary, exactly matching Java's
             // gg.copyArea(0, 0, size_x, size_y, 0, 1000 - size_y) logic.
-            if (y < FasteroidsGameState.size_y) {
-                add(star.copy(y = y + (1000 - FasteroidsGameState.size_y)))
+            if (y < size_y) {
+                add(star.copy(y = y + (1000 - size_y)))
             }
         }
     }
@@ -1694,14 +1704,81 @@ fun FasteroidsGame(state: FasteroidsGameState) {
 
             // Status graphic right of the playing field
             if (statusImage != null) {
-                Image(
-                    bitmap = statusImage!!,
-                    contentDescription = "Side Background",
-                    contentScale = ContentScale.FillHeight,
+                val sidePanelHeight = ((fasteroids_main_height / 2f) * dpi_factor * scale)
+                val overlayScale = sidePanelHeight / 290f
+
+                Box(
                     modifier = Modifier
-                        .height(((fasteroids_main_height / 2 * dpi_factor) * scale).dp)
+                        .height(sidePanelHeight.dp)
                         .padding(all = 0.dp)
-                )
+                ) {
+                    Image(
+                        bitmap = statusImage!!,
+                        contentDescription = "Side Background",
+                        contentScale = ContentScale.FillHeight,
+                        modifier = Modifier.fillMaxHeight()
+                    )
+
+                    // Draw Level Status
+                    val levelIdx = state.level.coerceIn(1, 5)
+                    val levelImg = state.images.levelStatus.getOrNull(levelIdx)
+                    if (levelImg != null) {
+                        Image(
+                            bitmap = levelImg,
+                            contentDescription = "Level Status",
+                            modifier = Modifier
+                                .offset(
+                                    x = (41f * overlayScale).dp,
+                                    y = (24f * overlayScale).dp
+                                )
+                                .graphicsLayer {
+                                    scaleX = overlayScale
+                                    scaleY = overlayScale
+                                    transformOrigin = TransformOrigin(0f, 0f)
+                                }
+                        )
+                    }
+
+                    // Draw Lives Status
+                    val livesIdx = (state.shuttle_p?.lives ?: 0).coerceIn(0, 5)
+                    val lifeImg = state.images.lifeStatus.getOrNull(livesIdx)
+                    if (lifeImg != null) {
+                        Image(
+                            bitmap = lifeImg,
+                            contentDescription = "Lives Status",
+                            modifier = Modifier
+                                .offset(
+                                    x = (17f * overlayScale).dp,
+                                    y = (103f * overlayScale).dp
+                                )
+                                .graphicsLayer {
+                                    scaleX = overlayScale
+                                    scaleY = overlayScale
+                                    transformOrigin = TransformOrigin(0f, 0f)
+                                }
+                        )
+                    }
+
+                    // Draw Shields Status
+                    val shieldsIdx = (state.shuttle_p?.shield_num ?: 0).coerceIn(0, 5)
+                    val shieldImg = state.images.shieldStatus.getOrNull(shieldsIdx)
+                    if (shieldImg != null) {
+                        Image(
+                            bitmap = shieldImg,
+                            contentDescription = "Shields Status",
+                            modifier = Modifier
+                                .offset(
+                                    x = (59f * overlayScale).dp,
+                                    y = (141f * overlayScale).dp
+                                )
+                                .graphicsLayer {
+                                    scaleX = overlayScale
+                                    scaleY = overlayScale
+                                    transformOrigin = TransformOrigin(0f, 0f)
+                                }
+                        )
+                    }
+                }
             }
         }
 
