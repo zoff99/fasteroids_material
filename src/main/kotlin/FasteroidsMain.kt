@@ -1770,6 +1770,8 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
 
     val main_window_pos_x = 50.dp
     val main_window_pos_y = 50.dp
+
+    // found by out by trying what the best values are
     val found_unknown03 = (-166.5f * INIT_SCALE + 582.75f).dp
     val found_unknown04 = ((580 * 2) / dpi_factor).dp
 
