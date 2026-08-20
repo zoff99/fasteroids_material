@@ -95,6 +95,7 @@ import javax.sound.sampled.DataLine
 // Math utilities
 import kotlin.math.sin
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 // ============================================================================
 // CONFIGURATION CONSTANTS
@@ -106,6 +107,11 @@ const val DEBUG_IT = false // set "false" for release builds
 // Showcase mode for CI runs to make nice screenshots without the need to press keys
 const val DEMO_SHOWCASE_DEBUG_ONLY = false // set "false" for release builds
 
+// in Showcase mode free the game after this amount of seconds
+const val FREEZE_GAME_AFTER_SECONS = 5
+
+// load graphics after this amount of seconds (use fallback graphics before that)
+const val LAZY_LOAD_AFTER_SECODNS = 2
 
 // initial scaling factor
 val INIT_SCALE = if (DEMO_SHOWCASE_DEBUG_ONLY) 2.0f else 3.5f
@@ -1069,7 +1075,8 @@ class FasteroidsGameState {
         // ====================================================================
         // SHOOTING INPUT
         // ====================================================================
-        if (keyDown[0]) {
+        @Suppress("SimplifyBooleanWithConstants")
+        if ((keyDown[0]) || DEMO_SHOWCASE_DEBUG_ONLY) {
             if (!shuttle.shoot && shuttle.shoot_delay == 0) {
                 val cost = use_ammo[laser]
                 if (shuttle.ammo >= cost) {
@@ -1088,9 +1095,7 @@ class FasteroidsGameState {
                     sounds.playShot(0)
                 }
             }
-        }
-
-        // Shooting cooldown
+        } // Shooting cooldown
         if (shuttle.shoot_delay > 0) {
             shuttle.shoot_delay--
             shuttle.shoot = false
@@ -1100,13 +1105,12 @@ class FasteroidsGameState {
         // ====================================================================
         // SHIELD ACTIVATION INPUT
         // ====================================================================
-        if (keyDown[1] && !shuttle.shield && shuttle.shield_num > 0) {
+        @Suppress("SimplifyBooleanWithConstants")
+        if ((keyDown[1] || DEMO_SHOWCASE_DEBUG_ONLY) && !shuttle.shield && shuttle.shield_num > 0) {
             shuttle.shield = true
             shuttle.shield_num--
             shuttle.shield_counter = 0
-        }
-
-        // ====================================================================
+        } // ====================================================================
         // WEAPON SELECTION INPUT (keys 1-6)
         // ====================================================================
         for (i in 6..11) {
@@ -1772,16 +1776,18 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
     LaunchedEffect(Unit) {
         state.init_intro()
 
-        // DELIBERATE 3-SECOND DELAY before lazy-loading images and sounds
+        // DELIBERATE n-SECOND DELAY before lazy-loading images and sounds
         // This ensures you see the pure fallback graphics first, then they seamlessly switch.
         // This is useful for debugging the procedural rendering logic without needing asset files.
         launch {
             state.sounds.load()
-            delay(3000.milliseconds)
+            delay(LAZY_LOAD_AFTER_SECODNS.seconds)
             state.images.load()
         }
 
         var lastTime = System.currentTimeMillis()
+        val startupTime = System.currentTimeMillis()
+        var freeze_game = false
 
         // Main game loop: runs indefinitely on a background coroutine.
         // Uses a fixed time step (GAME_TICK_MS) to ensure consistent game speed
@@ -1790,7 +1796,13 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
             val currentTime = System.currentTimeMillis()
             val elapsedTime = currentTime - lastTime
 
-            if (elapsedTime >= GAME_TICK_MS) {
+            if (DEMO_SHOWCASE_DEBUG_ONLY) {
+                if ((currentTime - startupTime).milliseconds > FREEZE_GAME_AFTER_SECONS.seconds) {
+                    freeze_game = true
+                }
+            }
+
+            if ((elapsedTime >= GAME_TICK_MS) && (!freeze_game)) {
                 try {
                     state.update()
                     lastTime = currentTime
