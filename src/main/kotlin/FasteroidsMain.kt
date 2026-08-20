@@ -107,7 +107,14 @@ const val DEBUG_IT = false // set "false" for release builds
 // Showcase mode for CI runs to make nice screenshots without the need to press keys
 const val DEMO_SHOWCASE_DEBUG_ONLY = false // set "false" for release builds
 
-const val dpi_factor = 2.0
+// Automatically detect system display scale (e.g., 1.0 for 100%, 2.0 for 200%)
+val systemDisplayScale = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment()
+    .defaultScreenDevice.defaultConfiguration.defaultTransform.scaleX
+
+// The game is designed to run at 2x the original size.
+// If the system already scales by 2.0 (200%), we only need a factor of 1.0.
+// If the system is at 1.0 (100%), we need a factor of 2.0.
+val dpi_factor = 2.0 / systemDisplayScale
 
 // in Showcase mode free the game after this amount of seconds
 const val FREEZE_GAME_AFTER_SECONS = 5
@@ -142,7 +149,7 @@ val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).t
 const val ui = 50
 
 // Intro window width
-const val intro_window_width = 500 * dpi_factor
+val intro_window_width = 500 * dpi_factor
 
 // We set this later to the "resources/common/" directory in the source tree
 var resourcesDir: File? = null
@@ -173,7 +180,9 @@ const val Version_string = "v1.2.0 (Build 2026-0001)"
 const val ver = "Fasteroids $Version_string (C)1998-99 Planet Web Team.\n" +
         "standalone Material 2026 Edition"
 
-const val OSD_FONT_SIZE = 4
+const val OSD_FONT_SIZE = 9
+const val INTRO_FONT_SIZE_LINE1 = 16
+const val INTRO_FONT_SIZE_LINE2 = 10
 
 // Maximum number of laser upgrade levels (0-5)
 const val max_diff_laser = 6
@@ -1648,7 +1657,7 @@ fun FasteroidsGame(state: FasteroidsGameState) {
                     Text(
                         text = line,
                         color = Color.White.copy(alpha = alpha),
-                        fontSize = (11 * scale * pulse).sp,
+                        fontSize = (INTRO_FONT_SIZE_LINE1 * scale * pulse).sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -1661,7 +1670,7 @@ fun FasteroidsGame(state: FasteroidsGameState) {
                     Text(
                         text = "press any key to continue ...",
                         color = Color.White.copy(alpha = continueAlpha),
-                        fontSize = (5 * scale).sp,
+                        fontSize = (INTRO_FONT_SIZE_LINE2 * scale).sp,
                         fontWeight = FontWeight.Normal,
                         textAlign = TextAlign.Center
                     )
@@ -1756,6 +1765,8 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
     // HINT: set directory to load files
     //       it corresponds to "resources/common/" in the source tree
     resourcesDir = File(System.getProperty("compose.application.resources.dir"))
+
+    println("systemDisplayScale = $systemDisplayScale")
 
     val showIntroWindow = remember { mutableStateOf(true) }
 
