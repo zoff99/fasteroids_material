@@ -58,7 +58,7 @@ jobs:
       - name: sleep
         shell: bash
         run: |
-            sleep 60
+            sleep 70
 
       - name: capture-screen
         shell: pwsh
