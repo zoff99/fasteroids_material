@@ -71,6 +71,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
@@ -253,6 +255,10 @@ class ImageAssets {
     val lifeStatus = arrayOfNulls<ImageBitmap>(6)            // Life status images (0-5)
     val shieldStatus = arrayOfNulls<ImageBitmap>(6)          // Shield status images (0-5)
 
+    // Screen border images
+    var screenL: ImageBitmap? = null
+    var screenR: ImageBitmap? = null
+
     /**
      * Loads all game images from assets.
      * Attempts to load from local filesystem first, then falls back to classpath resources.
@@ -293,6 +299,10 @@ class ImageAssets {
             for (i in 1..5) levelStatus[i] = loadAssetImage("status/level$i.gif")
             for (i in 0..5) lifeStatus[i] = loadAssetImage("status/life$i.jpg")
             for (i in 0..5) shieldStatus[i] = loadAssetImage("status/shield$i.jpg")
+
+            // Load screen border images
+            screenL = loadAssetImage("screen_l.gif")
+            screenR = loadAssetImage("screen_r.gif")
 
             isReady = true
             println("✅ All game assets loaded successfully!")
@@ -1468,7 +1478,7 @@ class FasteroidsGameState {
  */
 @Composable
 fun FasteroidsGame(state: FasteroidsGameState) {
-    val tick = state.frameTick
+    // val tick = state.frameTick
     var scale by remember { mutableStateOf(INIT_SCALE) }
     val focusRequester = remember { FocusRequester() }
 
@@ -1593,6 +1603,32 @@ fun FasteroidsGame(state: FasteroidsGameState) {
                                 center = Offset(star.x, drawY)
                             )
                         }
+                    }
+
+                    // --- SCREEN LEFT & RIGHT BORDERS ---
+                    // Z-layer: above stars, below everything else
+                    val canvasHeight = size.height.toInt()
+                    val screenLImg = state.images.screenL
+                    val screenRImg = state.images.screenR
+                    if (state.images.isReady && screenRImg != null && screenLImg != null) {
+                        // Calculate the exact stretch factor based on the right image
+                        val scaleFactor = canvasHeight.toFloat() / screenRImg.height.toFloat()
+
+                        // Apply the same factor to both images to maintain consistent scaling
+                        val targetWidthL = (screenLImg.width.toFloat() * scaleFactor).toInt()
+                        val targetWidthR = (screenRImg.width.toFloat() * scaleFactor).toInt()
+                        val targetHeighL = (screenLImg.height.toFloat() * scaleFactor).toInt()
+
+                        drawImage(
+                            image = screenLImg,
+                            dstOffset = IntOffset(-8, -6), // Moved (13-5)=8 pixels left, 6 pixels down
+                            dstSize = IntSize(targetWidthL, targetHeighL)
+                        )
+                        drawImage(
+                            image = screenRImg,
+                            dstOffset = IntOffset((size.width.toInt() - targetWidthR).coerceAtLeast(0), 0),
+                            dstSize = IntSize(targetWidthR, canvasHeight)
+                        )
                     }
 
                     // --- ASTEROIDS ---
