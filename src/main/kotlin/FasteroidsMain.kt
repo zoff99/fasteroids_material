@@ -1062,11 +1062,11 @@ class FasteroidsGameState {
 
         // Right movement
         @Suppress("SimplifyBooleanWithConstants")
-        if ((keyDown[5]) || DEMO_SHOWCASE_DEBUG_ONLY) { shuttle.x = (shuttle.x + steer_x).coerceAtMost(max_right); shuttle.frame = 2 }
+        if ((keyDown[5]) || false) { shuttle.x = (shuttle.x + steer_x).coerceAtMost(max_right); shuttle.frame = 2 }
 
         // Up movement
         @Suppress("SimplifyBooleanWithConstants")
-        if ((keyDown[2]) || DEMO_SHOWCASE_DEBUG_ONLY) { shuttle.y = (shuttle.y - steer_y).coerceAtLeast(max_up); shuttle.frame = 3 }
+        if ((keyDown[2]) || false) { shuttle.y = (shuttle.y - steer_y).coerceAtLeast(max_up); shuttle.frame = 3 }
 
         // Down movement
         if (keyDown[3]) { shuttle.y = (shuttle.y + steer_y).coerceAtMost(max_down); shuttle.frame = 0 }
