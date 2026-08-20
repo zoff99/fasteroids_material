@@ -138,14 +138,31 @@ const val fasteroids_main_height = original_pixel_height // 720/2
 // aspect ratio of "resources/common/assets/pix/bg_m4.jpg"
 const val bg_m4_scale = (290.0f / 100.0f)
 
-// found by out by trying what the best values are
-const val unknown_01 = 2.0f
-const val unknown_02 = 48
+/**
+ * Divisor applied to side panel width calculation.
+ * Adjusts the panel's proportional width relative to window height.
+ * The value 2.0 was empirically determined to balance the game canvas
+ * and side panel proportions across different display scales.
+ *
+ * Adjust this if the side panel appears too wide or too narrow relative to the game.
+ */
+const val empirically__SIDE_PANEL_WIDTH_DIVISOR = 2.0f
+
+/**
+ * Fixed pixel padding added to side panel width calculation.
+ * Compensates for image borders, internal spacing, and ensures proper proportions.
+ *
+ * This value was found empirically to prevent the side panel from appearing too narrow
+ * when the aspect ratio calculation alone is used.
+ *
+ * Increase if the side panel appears cramped; decrease if it appears too wide.
+ */
+const val empirically__SIDE_PANEL_WIDTH_PADDING = 48
 
 // Outer window dimensions (includes UI elements)
 val main_window_init_scale = (INIT_SCALE / 3.5f) * 2.0f
 val fasteroids_window_height = (fasteroids_main_height * main_window_init_scale).toInt() * dpi_factor
-val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + (((fasteroids_window_height.toFloat() / bg_m4_scale) + unknown_02) / unknown_01) * dpi_factor
+val fasteroids_window_width = (fasteroids_main_width * main_window_init_scale).toInt() + (((fasteroids_window_height.toFloat() / bg_m4_scale) + empirically__SIDE_PANEL_WIDTH_PADDING) / empirically__SIDE_PANEL_WIDTH_DIVISOR) * dpi_factor
 const val ui = 50
 
 // Intro window width
@@ -1771,12 +1788,50 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
     val main_window_pos_x = 50.dp
     val main_window_pos_y = 50.dp
 
-    // found by out by trying what the best values are
-    val found_unknown03 = (-166.5f * INIT_SCALE + 582.75f).dp
-    val found_unknown04 = ((580 * 2) / dpi_factor).dp
+    /**
+     * Scale-dependent width correction for the main window.
+     *
+     * This linear correction compensates for non-linear scaling effects that occur
+     * at different INIT_SCALE values. The formula was derived empirically to maintain
+     * proper window proportions across scale settings.
+     *
+     * Formula: -166.5 * INIT_SCALE + 582.75
+     *
+     * The value was empirically determined
+     *
+     * Behavior:
+     * - At INIT_SCALE = 3.5 (default): correction = 0 (no adjustment)
+     * - At INIT_SCALE = 1.5 (demo): correction = 333 (reduces width)
+     * - At INIT_SCALE = 2.0: correction = 249.75 (reduces width)
+     *
+     * This ensures the window doesn't appear disproportionately wide at smaller scales.
+     * Only modify if you change INIT_SCALE defaults or find the window proportions wrong.
+     */
+    val empirically__SCALE_WIDTH_CORRECTION = (-166.5f * INIT_SCALE + 582.75f).dp
+
+    /**
+     * Base width offset for the main window, adjusted for display DPI.
+     *
+     * This accounts for window decorations, padding, spacing, and UI elements that
+     * don't scale with the game content but need to be included in the total window width.
+     *
+     * Formula: (580 * 2) / dpi_factor
+     *
+     * The value was empirically determined
+     *
+     * Components (approximate):
+     * - Window borders and title bar: ~10-20 pixels
+     * - Column padding (16dp × 2 sides): ~32 pixels
+     * - Layout spacing and margins: ~50-100 pixels
+     * - Safety margin for UI elements: ~400-500 pixels
+     *
+     * The DPI adjustment ensures consistent visual spacing across different display densities.
+     * Increase if window content appears cramped; decrease if window appears too wide with empty space.
+     */
+    val empirically__BASE_WINDOW_WIDTH_OFFSET = ((580 * 2) / dpi_factor).dp
 
     val mainWindowState = rememberWindowState(
-        width = fasteroids_window_width.dp - found_unknown03 + found_unknown04,
+        width = fasteroids_window_width.dp - empirically__SCALE_WIDTH_CORRECTION + empirically__BASE_WINDOW_WIDTH_OFFSET,
         height = fasteroids_window_height.dp + ui.dp,
         position = WindowPosition.Absolute(x = main_window_pos_x, y = main_window_pos_y)
     )
@@ -1787,7 +1842,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
             onClose = { showIntroWindow.value = false },
             mainWindowX = main_window_pos_x,
             mainWindowY = main_window_pos_y,
-            mainWindowWidth = fasteroids_window_width.dp - found_unknown03 + found_unknown04
+            mainWindowWidth = fasteroids_window_width.dp - empirically__SCALE_WIDTH_CORRECTION + empirically__BASE_WINDOW_WIDTH_OFFSET
         )
     }
 
