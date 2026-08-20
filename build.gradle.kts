@@ -114,7 +114,7 @@ dependencies {
     implementation(compose.materialIconsExtended)
     //
     //
-    implementation("ca.gosyer:kotlin-multiplatform-appdirs:1.2.0")
+    implementation("ca.gosyer:kotlin-multiplatform-appdirs:2.0.0")
 }
 
 val main_class_name = "FasteroidsMainKt"
