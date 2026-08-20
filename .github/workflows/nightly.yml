@@ -572,7 +572,7 @@ jobs:
 
 
   linux-ub20-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ true }}
     permissions:
       contents: write
@@ -663,7 +663,6 @@ jobs:
                printf 'sleep 2\n' >> /tmp/a.sh
                printf 'import -window root /tmp/screenshot-linux_before_wm.png\n' >> /tmp/a.sh
                printf 'sleep 40\n' >> /tmp/a.sh
-               printf 'fvwm2 &' >> /tmp/a.sh
                printf 'sleep 20\n' >> /tmp/a.sh
                printf 'xdotool mousemove --sync 480 460 click 1\n' >> /tmp/a.sh
                printf 'sleep 90\n' >> /tmp/a.sh
