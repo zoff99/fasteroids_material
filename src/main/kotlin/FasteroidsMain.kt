@@ -123,7 +123,7 @@ const val FREEZE_GAME_AFTER_SECONS = 5
 const val LAZY_LOAD_AFTER_SECODNS = 2
 
 // initial scaling factor
-val INIT_SCALE = if (DEMO_SHOWCASE_DEBUG_ONLY) 2.0f else 3.5f
+val INIT_SCALE = if (DEMO_SHOWCASE_DEBUG_ONLY) 1.0f else 3.5f
 
 //
 // HINT: the original game was exactly 425 x 360 pixels in size
