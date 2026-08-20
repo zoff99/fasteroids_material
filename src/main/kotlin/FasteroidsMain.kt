@@ -1766,15 +1766,13 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
     //       it corresponds to "resources/common/" in the source tree
     resourcesDir = File(System.getProperty("compose.application.resources.dir"))
 
-    println("systemDisplayScale = $systemDisplayScale")
-
     val showIntroWindow = remember { mutableStateOf(true) }
 
     val main_window_pos_x = 50.dp
     val main_window_pos_y = 50.dp
 
     val mainWindowState = rememberWindowState(
-        width = fasteroids_window_width.dp + (580 * (dpi_factor - 1)).dp,
+        width = fasteroids_window_width.dp + ((580 * 2) / dpi_factor).dp + (0 * (dpi_factor - 1)).dp,
         height = fasteroids_window_height.dp + ui.dp,
         position = WindowPosition.Absolute(x = main_window_pos_x, y = main_window_pos_y)
     )
@@ -1785,7 +1783,7 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
             onClose = { showIntroWindow.value = false },
             mainWindowX = main_window_pos_x,
             mainWindowY = main_window_pos_y,
-            mainWindowWidth = fasteroids_window_width.dp + (580 * (dpi_factor - 1)).dp
+            mainWindowWidth = fasteroids_window_width.dp + ((580 * 2) / dpi_factor).dp + (0 * (dpi_factor - 1)).dp
         )
     }
 
@@ -1799,6 +1797,8 @@ fun main(args: Array<String>) = application(exitProcessOnExit = true) {
         // This is useful for debugging the procedural rendering logic without needing asset files.
         launch {
             state.sounds.load()
+            println("systemDisplayScale = $systemDisplayScale")
+            println("dpi_factor = $dpi_factor")
             delay(LAZY_LOAD_AFTER_SECODNS.seconds)
             state.images.load()
         }
