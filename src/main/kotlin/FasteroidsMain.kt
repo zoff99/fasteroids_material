@@ -1552,7 +1552,7 @@ fun FasteroidsGame(state: FasteroidsGameState) {
                 // HUD (Heads-Up Display)
                 // ====================================================================
                 Row(
-                    modifier = Modifier.fillMaxSize().padding(start = (2 * scale).dp, top = (2 * scale).dp, end = (2 * scale).dp),
+                    modifier = Modifier.fillMaxSize().padding(start = (16 * scale).dp, top = (2 * scale).dp, end = (8 * scale).dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Left side: Score and Level
