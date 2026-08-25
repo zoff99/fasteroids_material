@@ -118,7 +118,7 @@ val systemDisplayScale = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironmen
 // If the system is at 1.0 (100%), we need a factor of 2.0.
 val dpi_factor = 2.0f / systemDisplayScale
 
-// in Showcase mode free the game after this amount of seconds
+// in Showcase mode freeze the game after this amount of seconds
 const val FREEZE_GAME_AFTER_SECONS = 5
 
 // load graphics after this amount of seconds (use fallback graphics before that)
